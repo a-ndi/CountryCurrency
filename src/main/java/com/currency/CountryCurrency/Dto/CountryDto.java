@@ -1,5 +1,6 @@
 package com.currency.CountryCurrency.Dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public class CountryDto {
         private String region;
         private Long population;
         private String flag;
+        @JsonProperty("flags")
+        private Object flags; // fallback for newer responses
         private List<CurrencyDto> currencies;
 
         public String getName() {
@@ -65,5 +68,14 @@ public class CountryDto {
 
         public void setCurrencies(List<CurrencyDto> currencies) {
                 this.currencies = currencies;
+        }
+
+
+        public Object getFlags() {
+                return flags;
+        }
+
+        public void setFlags(Object flags) {
+                this.flags = flags;
         }
 }

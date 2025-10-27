@@ -58,13 +58,21 @@ public class CountryService {
             Map<String, Object> rateData = restTemplate.getForObject(rateUrl, Map.class);
             Map<String, Object> ratesData = (Map<String, Object>) rateData.get("rates");
 
-            // 3️⃣ Loop through all countries
+            //  Loop through all countries
             for (CountryDto c : countries) {
                 String name = c.getName();
                 String capital = c.getCapital();
                 String region = c.getRegion();
                 Long population = c.getPopulation();
-                String flag = c.getFlag();
+
+
+                String flag = null;
+                if (c.getFlag() != null) {
+                    flag = c.getFlag();
+                } else if (c.getFlags() instanceof Map) {
+                    Map<?, ?> flagMap = (Map<?, ?>) c.getFlags();
+                    flag = (String) flagMap.get("png");
+                }
 
                 String currencyCode = null;
                 Double exchangeRate = null;
