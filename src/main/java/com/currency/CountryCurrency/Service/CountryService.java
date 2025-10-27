@@ -121,8 +121,12 @@ public class CountryService {
             // Update global refresh timestamp
             lastRefreshTime = LocalDateTime.now();
             System.out.println("Countries refreshed successfully at: " + lastRefreshTime);
-            //Generate image
-            generateSummaryImage();
+            try {
+                generateSummaryImage();
+            } catch (Exception ex) {
+                System.err.println(" Skipping image generation: " + ex.getMessage());
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
