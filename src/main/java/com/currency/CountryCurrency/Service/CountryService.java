@@ -49,6 +49,7 @@ public class CountryService {
             );
             List<CountryDto> countries = response.getBody();
 
+
             if (countries == null || countries.isEmpty()) {
                 throw new IllegalStateException("No country data fetched from API");
             }
@@ -116,6 +117,7 @@ public class CountryService {
                 country.setLastRefreshedAt(LocalDateTime.now());
 
                 countryRepo.save(country);
+                System.out.println("✅ Saved country: " + country.getName());
             }
 
             // Update global refresh timestamp
