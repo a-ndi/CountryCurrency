@@ -49,6 +49,12 @@ public class CountryService {
             );
             List<CountryDto> countries = response.getBody();
 
+            if (countries == null) {
+                System.out.println("❌ API returned null country list!");
+            } else {
+                System.out.println("✅ API returned " + countries.size() + " countries");
+            }
+
 
             if (countries == null || countries.isEmpty()) {
                 throw new IllegalStateException("No country data fetched from API");
