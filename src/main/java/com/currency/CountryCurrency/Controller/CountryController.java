@@ -3,13 +3,11 @@ package com.currency.CountryCurrency.Controller;
 
 import com.currency.CountryCurrency.Model.CountryModel;
 import com.currency.CountryCurrency.Service.CountryService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -18,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping ("/countries")
-
 public class CountryController {
 
     private final CountryService countryService;
@@ -27,7 +24,6 @@ public class CountryController {
     }
 
     @PostMapping("/refresh")
-
     public ResponseEntity<?> refreshCountries() {
         try {
             countryService.refreshCountries();
