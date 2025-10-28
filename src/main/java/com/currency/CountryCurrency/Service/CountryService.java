@@ -236,8 +236,9 @@ public class CountryService {
             try (InputStream fontStream = getClass().getResourceAsStream("/fonts/Roboto-VariableFont_wdth,wght.ttf")) {
                 customFont = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(16f);
             } catch (Exception e) {
-                System.err.println("Failed to load custom font, falling back to default.");
-                customFont = new Font("SansSerif", Font.PLAIN, 16);
+                System.err.println("⚠️ Custom font failed to load: " + e.getMessage());
+                // Use logical font (safe in headless mode)
+                customFont = new Font(Font.DIALOG, Font.PLAIN, 16);
             }
 
             // Header
