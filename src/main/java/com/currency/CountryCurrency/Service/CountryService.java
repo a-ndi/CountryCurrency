@@ -130,6 +130,7 @@ public class CountryService {
             lastRefreshTime = LocalDateTime.now();
             System.out.println("CountryService - Countries refreshed successfully at: " + lastRefreshTime);
             try {
+                System.out.println("CountryService - `starting image generation ");
                 generateSummaryImage();
             } catch (Exception ex) {
                 System.err.println("CountryService - Skipping image generation: " + ex.getMessage());
@@ -214,6 +215,7 @@ public class CountryService {
         try {
             // Get data
             List<CountryModel> countries = countryRepo.findAll();
+            System.out.println("CountryService - got all countries ");
             int totalCountries = countries.size();
             System.out.println("CountryService - got image size");
 
