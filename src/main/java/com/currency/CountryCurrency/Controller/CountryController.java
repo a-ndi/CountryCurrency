@@ -27,6 +27,7 @@ public class CountryController {
     public ResponseEntity<?> refreshCountries() {
         try {
             countryService.refreshCountries();
+            System.out.println("CountryService - Refreshing countries... successful");
             return ResponseEntity.ok().body(
                     Map.of("message", "Countries refreshed successfully")
             );

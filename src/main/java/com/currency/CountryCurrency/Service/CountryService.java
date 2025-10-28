@@ -50,9 +50,9 @@ public class CountryService {
             List<CountryDto> countries = response.getBody();
 
             if (countries == null) {
-                System.out.println("❌ API returned null country list!");
+                System.out.println("CountryService - ❌ API returned null country list!");
             } else {
-                System.out.println("✅ API returned " + countries.size() + " countries");
+                System.out.println("CountryService - ✅ API returned " + countries.size() + " countries");
             }
 
 
@@ -128,11 +128,11 @@ public class CountryService {
 
             // Update global refresh timestamp
             lastRefreshTime = LocalDateTime.now();
-            System.out.println("Countries refreshed successfully at: " + lastRefreshTime);
+            System.out.println("CountryService - Countries refreshed successfully at: " + lastRefreshTime);
             try {
                 generateSummaryImage();
             } catch (Exception ex) {
-                System.err.println(" Skipping image generation: " + ex.getMessage());
+                System.err.println("CountryService - Skipping image generation: " + ex.getMessage());
             }
 
 
@@ -215,6 +215,8 @@ public class CountryService {
             // Get data
             List<CountryModel> countries = countryRepo.findAll();
             int totalCountries = countries.size();
+            System.out.println("CountryService - got image size");
+
 
             // Sort by GDP and pick top 5
             List<CountryModel> top5 = countries.stream()
@@ -222,6 +224,8 @@ public class CountryService {
                     .sorted(Comparator.comparingDouble(CountryModel::getEstimatedGdp).reversed())
                     .limit(5)
                     .collect(Collectors.toList());
+
+            System.out.println("CountryService - sorted");
 
             // Create image canvas
             int width = 600;
@@ -255,6 +259,8 @@ public class CountryService {
             g.drawString("Last Refreshed: " + lastRefreshTime, 20, height - 30);
 
             g.dispose();
+            System.out.println("CountryService - Did some font stuff ");
+
 
             // Ensure folder exists
             File folder = new File("cache");
