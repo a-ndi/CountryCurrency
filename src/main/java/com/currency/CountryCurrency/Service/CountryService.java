@@ -4,19 +4,15 @@ package com.currency.CountryCurrency.Service;
 import com.currency.CountryCurrency.Dto.CountryDto;
 import com.currency.CountryCurrency.Model.CountryModel;
 import com.currency.CountryCurrency.Repository.CountryRepo;
-import lombok.RequiredArgsConstructor;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.CategoryChartBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -208,75 +204,26 @@ public class CountryService {
         countryRepo.delete(country);
     }
 
-    public void generateSummaryImage() {
-        try {
-            List<CountryModel> countries = countryRepo.findAll();
-            int totalCountries = countries.size();
+    public void generateSummaryImage() throws Exception {
+        List<CountryModel> countries = countryRepo.findAll();
+        List<CountryModel> top5 = countries.stream()
+                .filter(c -> c.getEstimatedGdp() != null)
+                .sorted(Comparator.comparingDouble(CountryModel::getEstimatedGdp).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
 
-            List<CountryModel> top5 = countries.stream()
-                    .filter(c -> c.getEstimatedGdp() != null)
-                    .sorted(Comparator.comparingDouble(CountryModel::getEstimatedGdp).reversed())
-                    .limit(5)
-                    .collect(Collectors.toList());
+        List<String> names = top5.stream().map(CountryModel::getName).toList();
+        List<Double> gdps = top5.stream().map(CountryModel::getEstimatedGdp).toList();
 
-            int width = 600;
-            int height = 300;
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = image.createGraphics();
+        CategoryChart chart = new CategoryChartBuilder()
+                .width(600).height(400)
+                .title("Top 5 Countries by Estimated GDP")
+                .xAxisTitle("Country").yAxisTitle("GDP").build();
 
-            // Basic 2D setup (no font rendering)
-            g.setColor(Color.WHITE);
-            g.fillRect(0, 0, width, height);
-            g.setColor(Color.BLACK);
+        chart.addSeries("GDP", names, gdps);
 
-            // Use simple rectangle-based bars to represent GDP visually
-            int barWidth = 400;
-            int xStart = 150;
-            int yStart = 100;
-            int barHeight = 25;
-            double maxGdp = top5.isEmpty() ? 1 : top5.get(0).getEstimatedGdp();
-
-            // Title block (draw shapes instead of text)
-            g.setColor(Color.BLACK);
-            g.fillRect(20, 20, 560, 5);
-
-            // Instead of drawing text, encode minimal labels as rectangles or hashes
-            // Or, if you still want simple labels, use drawChars (does not require system fonts)
-            char[] title = "COUNTRY SUMMARY".toCharArray();
-            g.drawChars(title, 0, title.length, 20, 50);
-
-            // Draw total
-            char[] total = ("Total Countries: " + totalCountries).toCharArray();
-            g.drawChars(total, 0, total.length, 20, 80);
-
-            // Top-5 bars
-            int y = yStart;
-            for (CountryModel c : top5) {
-                double ratio = c.getEstimatedGdp() / maxGdp;
-                int barLength = (int) (barWidth * ratio);
-
-                g.setColor(Color.GRAY);
-                g.fillRect(xStart, y - 15, barLength, barHeight);
-                g.setColor(Color.BLACK);
-
-                // label using drawChars
-                String label = c.getName();
-                g.drawChars(label.toCharArray(), 0, label.length(), 20, y + 5);
-                y += 35;
-            }
-
-            g.dispose();
-
-            File folder = new File("cache");
-            if (!folder.exists()) folder.mkdirs();
-
-            ImageIO.write(image, "png", new File("cache/summary.png"));
-            System.out.println("✅ Summary image generated successfully (font-free)");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("❌ Failed to generate summary image: " + e.getMessage());
-        }
+        BitmapEncoder.saveBitmap(chart, "cache/summary", BitmapEncoder.BitmapFormat.PNG);
+        System.out.println("✅ Summary image generated (font-free with XChart)");
     }
 }
 
