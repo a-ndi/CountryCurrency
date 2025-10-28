@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -129,12 +130,12 @@ public class CountryService {
             // Update global refresh timestamp
             lastRefreshTime = LocalDateTime.now();
             System.out.println("CountryService - Countries refreshed successfully at: " + lastRefreshTime);
-//            try {
-//                System.out.println("CountryService - `starting image generation ");
-//                generateSummaryImage();
-//            } catch (Exception ex) {
-//                System.err.println("CountryService - Skipping image generation: " + ex.getMessage());
-//            }
+            try {
+                System.out.println("CountryService - `starting image generation ");
+                generateSummaryImage();
+            } catch (Exception ex) {
+                System.err.println("CountryService - Skipping image generation: " + ex.getMessage());
+            }
 
 
         } catch (Exception e) {
@@ -207,54 +208,46 @@ public class CountryService {
         countryRepo.delete(country);
     }
 
-
-
-
-
     public void generateSummaryImage() {
         try {
-            // Get data
             List<CountryModel> countries = countryRepo.findAll();
-            System.out.println("CountryService - got all countries ");
             int totalCountries = countries.size();
-            System.out.println("CountryService - got image size");
 
-
-            // Sort by GDP and pick top 5
             List<CountryModel> top5 = countries.stream()
                     .filter(c -> c.getEstimatedGdp() != null)
                     .sorted(Comparator.comparingDouble(CountryModel::getEstimatedGdp).reversed())
                     .limit(5)
                     .collect(Collectors.toList());
 
-            System.out.println("CountryService - sorted");
-
-            // Create image canvas
             int width = 600;
             int height = 300;
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = image.createGraphics();
 
-            System.out.println("CountryService - create graphics");
+            // Enable antialiasing for better text quality
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             // Background
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, width, height);
 
-            System.out.println("CountryService - set background");
+            // Load custom font from resources
+            Font customFont;
+            try (InputStream fontStream = getClass().getResourceAsStream("/fonts/Roboto-VariableFont_wdth,wght.ttf")) {
+                customFont = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(16f);
+            } catch (Exception e) {
+                System.err.println("Failed to load custom font, falling back to default.");
+                customFont = new Font("SansSerif", Font.PLAIN, 16);
+            }
 
             // Header
             g.setColor(Color.BLACK);
-            g.setFont(new Font("Arial", Font.BOLD, 20));
+            g.setFont(customFont.deriveFont(Font.BOLD, 20f));
             g.drawString("Country Summary", 20, 40);
 
-            System.out.println("CountryService - set Header");
-
             // Total countries
-            g.setFont(new Font("Arial", Font.PLAIN, 16));
+            g.setFont(customFont.deriveFont(Font.PLAIN, 16f));
             g.drawString("Total Countries: " + totalCountries, 20, 80);
-
-            System.out.println("CountryService - Draw string");
 
             // Top 5 by GDP
             g.drawString("Top 5 Countries by Estimated GDP:", 20, 110);
@@ -265,12 +258,10 @@ public class CountryService {
             }
 
             // Timestamp
-            g.setFont(new Font("Arial", Font.ITALIC, 14));
+            g.setFont(customFont.deriveFont(Font.ITALIC, 14f));
             g.drawString("Last Refreshed: " + lastRefreshTime, 20, height - 30);
 
             g.dispose();
-            System.out.println("CountryService - Did some font stuff ");
-
 
             // Ensure folder exists
             File folder = new File("cache");
@@ -278,8 +269,7 @@ public class CountryService {
 
             // Save image
             ImageIO.write(image, "png", new File("cache/summary.png"));
-
-            System.out.println(" Summary image generated successfully!");
+            System.out.println("Summary image generated successfully!");
 
         } catch (IOException e) {
             e.printStackTrace();
