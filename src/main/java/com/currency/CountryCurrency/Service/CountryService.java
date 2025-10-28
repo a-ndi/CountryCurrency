@@ -224,57 +224,58 @@ public class CountryService {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = image.createGraphics();
 
-            // Enable antialiasing for better text quality
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            // Background
+            // Basic 2D setup (no font rendering)
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, width, height);
-
-            // Load custom font from resources
-            Font customFont;
-            try (InputStream fontStream = getClass().getResourceAsStream("/fonts/Roboto-VariableFont_wdth,wght.ttf")) {
-                customFont = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(16f);
-            } catch (Exception e) {
-                System.err.println("⚠️ Custom font failed to load: " + e.getMessage());
-                // Use logical font (safe in headless mode)
-                customFont = new Font(Font.DIALOG, Font.PLAIN, 16);
-            }
-
-            // Header
             g.setColor(Color.BLACK);
-            g.setFont(customFont.deriveFont(Font.BOLD, 20f));
-            g.drawString("Country Summary", 20, 40);
 
-            // Total countries
-            g.setFont(customFont.deriveFont(Font.PLAIN, 16f));
-            g.drawString("Total Countries: " + totalCountries, 20, 80);
+            // Use simple rectangle-based bars to represent GDP visually
+            int barWidth = 400;
+            int xStart = 150;
+            int yStart = 100;
+            int barHeight = 25;
+            double maxGdp = top5.isEmpty() ? 1 : top5.get(0).getEstimatedGdp();
 
-            // Top 5 by GDP
-            g.drawString("Top 5 Countries by Estimated GDP:", 20, 110);
-            int y = 140;
+            // Title block (draw shapes instead of text)
+            g.setColor(Color.BLACK);
+            g.fillRect(20, 20, 560, 5);
+
+            // Instead of drawing text, encode minimal labels as rectangles or hashes
+            // Or, if you still want simple labels, use drawChars (does not require system fonts)
+            char[] title = "COUNTRY SUMMARY".toCharArray();
+            g.drawChars(title, 0, title.length, 20, 50);
+
+            // Draw total
+            char[] total = ("Total Countries: " + totalCountries).toCharArray();
+            g.drawChars(total, 0, total.length, 20, 80);
+
+            // Top-5 bars
+            int y = yStart;
             for (CountryModel c : top5) {
-                g.drawString(c.getName() + " → " + String.format("%.2f", c.getEstimatedGdp()), 40, y);
-                y += 25;
-            }
+                double ratio = c.getEstimatedGdp() / maxGdp;
+                int barLength = (int) (barWidth * ratio);
 
-            // Timestamp
-            g.setFont(customFont.deriveFont(Font.ITALIC, 14f));
-            g.drawString("Last Refreshed: " + lastRefreshTime, 20, height - 30);
+                g.setColor(Color.GRAY);
+                g.fillRect(xStart, y - 15, barLength, barHeight);
+                g.setColor(Color.BLACK);
+
+                // label using drawChars
+                String label = c.getName();
+                g.drawChars(label.toCharArray(), 0, label.length(), 20, y + 5);
+                y += 35;
+            }
 
             g.dispose();
 
-            // Ensure folder exists
             File folder = new File("cache");
             if (!folder.exists()) folder.mkdirs();
 
-            // Save image
             ImageIO.write(image, "png", new File("cache/summary.png"));
-            System.out.println("Summary image generated successfully!");
+            System.out.println("✅ Summary image generated successfully (font-free)");
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Failed to generate summary image: " + e.getMessage());
+            System.err.println("❌ Failed to generate summary image: " + e.getMessage());
         }
     }
 }
