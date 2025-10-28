@@ -235,18 +235,26 @@ public class CountryService {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = image.createGraphics();
 
+            System.out.println("CountryService - create graphics");
+
             // Background
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, width, height);
+
+            System.out.println("CountryService - set background");
 
             // Header
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.BOLD, 20));
             g.drawString("Country Summary", 20, 40);
 
+            System.out.println("CountryService - set Header");
+
             // Total countries
             g.setFont(new Font("Arial", Font.PLAIN, 16));
             g.drawString("Total Countries: " + totalCountries, 20, 80);
+
+            System.out.println("CountryService - Draw string");
 
             // Top 5 by GDP
             g.drawString("Top 5 Countries by Estimated GDP:", 20, 110);
