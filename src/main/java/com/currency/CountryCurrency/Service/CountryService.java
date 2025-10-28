@@ -129,12 +129,12 @@ public class CountryService {
             // Update global refresh timestamp
             lastRefreshTime = LocalDateTime.now();
             System.out.println("CountryService - Countries refreshed successfully at: " + lastRefreshTime);
-            try {
-                System.out.println("CountryService - `starting image generation ");
-                generateSummaryImage();
-            } catch (Exception ex) {
-                System.err.println("CountryService - Skipping image generation: " + ex.getMessage());
-            }
+//            try {
+//                System.out.println("CountryService - `starting image generation ");
+//                generateSummaryImage();
+//            } catch (Exception ex) {
+//                System.err.println("CountryService - Skipping image generation: " + ex.getMessage());
+//            }
 
 
         } catch (Exception e) {
