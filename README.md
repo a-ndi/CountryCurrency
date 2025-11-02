@@ -32,7 +32,7 @@ A RESTful API built with **Java Spring Boot** that fetches global country data a
 
 ### 1️⃣ Clone the Repository
 ```bash
-Clone the repository: git clone cd analyser-api
+Clone the repository: git clone cd
 cd CountryCurrency
 
 
